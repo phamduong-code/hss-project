@@ -1,12 +1,5 @@
-import React from 'react'
-import NavMenu from './NavMenu'
+const HeaderBar = () => {
+    return <div className='navbar  w-[100vw] h-[60px] flex flex-row bg-base-100 shadow-sm'></div>;
+};
 
-const HeaderBar = (props:any) => {
-  return (
-      <div className="navbar bg-base-100 shadow-sm">
-        <NavMenu onLogout={props.onLogout} />
-    </div>
-  )
-}
-
-export default HeaderBar
+export default HeaderBar;
