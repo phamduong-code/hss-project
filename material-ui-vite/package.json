@@ -1,22 +1,24 @@
 {
-  "name": "material-ui-vite",
-  "version": "7.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview"
-  },
-  "dependencies": {
-    "@emotion/react": "latest",
-    "@emotion/styled": "latest",
-    "@mui/icons-material": "^7.3.4",
-    "@mui/material": "latest",
-    "react": "latest",
-    "react-dom": "latest"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "latest",
-    "vite": "latest"
-  }
+    "name": "material-ui-vite",
+    "version": "7.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && cp -r ./dist ../backend-server/defects-server/",
+        "serve": "vite preview"
+    },
+    "dependencies": {
+        "@emotion/react": "latest",
+        "@emotion/styled": "latest",
+        "@mui/icons-material": "^7.3.4",
+        "@mui/material": "latest",
+        "axios": "^1.12.2",
+        "react": "latest",
+        "react-dom": "latest",
+        "react-overlays": "^5.2.1"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "latest",
+        "vite": "latest"
+    }
 }

@@ -22,36 +22,9 @@ import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
-
-const createData = (serialNumber, requestedAt, roomNumber, content, requestedBy, progress, priority, endDate, remark) => {
-    return {
-        serialNumber,
-        requestedAt,
-        roomNumber,
-        content,
-        requestedBy,
-        progress,
-        priority,
-        endDate,
-        remark,
-    };
-};
-
-const rows = [
-    createData(1, '01/08/2025', 'B0101', 'Cupcake', 'Alice', 'In Progress', 'High', '05/08/2025', 'No remarks'),
-    createData(2, '02/08/2025', 'B0102', 'Donut', 'Bob', 'Completed', 'Medium', '06/08/2025', 'No remarks'),
-    createData(3, '03/08/2025', 'B0103', 'Eclair', 'Charlie', 'Pending', 'Low', '07/08/2025', 'No remarks'),
-    createData(4, '04/08/2025', 'B0104', 'Frozen yoghurt', 'David', 'In Progress', 'High', '08/08/2025', 'No remarks'),
-    createData(5, '05/08/2025', 'B0105', 'Gingerbread', 'Eve', 'Completed', 'Medium', '09/08/2025', 'No remarks'),
-    createData(6, '06/08/2025', 'B0106', 'Honeycomb', 'Frank', 'Pending', 'Low', '10/08/2025', 'No remarks'),
-    createData(7, '07/08/2025', 'B0107', 'Ice cream sandwich', 'Grace', 'In Progress', 'High', '11/08/2025', 'No remarks'),
-    createData(8, '08/08/2025', 'B0108', 'Jelly Bean', 'Heidi', 'Completed', 'Medium', '12/08/2025', 'No remarks'),
-    createData(9, '09/08/2025', 'B0109', 'KitKat', 'Ivan', 'Pending', 'Low', '13/08/2025', 'No remarks'),
-    createData(10, '10/08/2025', 'B0110', 'Lollipop', 'Judy', 'In Progress', 'High', '14/08/2025', 'No remarks'),
-    createData(11, '11/08/2025', 'B0111', 'Marshmallow', 'Karl', 'Completed', 'Medium', '15/08/2025', 'No remarks'),
-    createData(12, '12/08/2025', 'B0112', 'Nougat', 'Laura', 'Pending', 'Low', '16/08/2025', 'No remarks'),
-    createData(13, '13/08/2025', 'B0113', 'Oreo', 'Mike', 'In Progress', 'High', '17/08/2025', 'No remarks'),
-];
+import { useEffect } from 'react';
+import axios from 'axios';
+import * as headCells from './utils/tableHeader';
 
 const descendingComparator = (a, b, orderBy) => {
     if (b[orderBy] < a[orderBy]) {
@@ -66,64 +39,6 @@ const descendingComparator = (a, b, orderBy) => {
 const getComparator = (order, orderBy) => {
     return order === 'desc' ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy);
 };
-
-const headCells = [
-    {
-        id: 'serialNumber',
-        disablePadding: true,
-        label: 'STT',
-        width: 80,
-    },
-    {
-        id: 'date',
-        disablePadding: true,
-        label: 'Ngày',
-        width: 30,
-    },
-    {
-        id: 'roomNumber',
-        disablePadding: true,
-        label: 'Mã căn hộ',
-        width: 30,
-    },
-    {
-        id: 'content',
-        disablePadding: true,
-        label: 'Nội dung',
-        width: 200,
-    },
-    {
-        id: 'process',
-        disablePadding: true,
-        label: 'Tiến độ',
-        width: 30,
-    },
-    {
-        id: 'requestedBy',
-        disablePadding: true,
-        label: 'Người yêu cầu',
-        width: 30,
-    },
-
-    {
-        id: 'priority',
-        disablePadding: true,
-        label: 'Loại ưu tiên',
-        width: 30,
-    },
-    {
-        id: 'endDate',
-        disablePadding: true,
-        label: 'Ngày hoàn thành',
-        width: 30,
-    },
-    {
-        id: 'remark',
-        disablePadding: true,
-        label: 'Ghi chú',
-        width: 60,
-    },
-];
 
 const EnhancedTableHead = (props) => {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
@@ -215,12 +130,27 @@ EnhancedTableToolbar.propTypes = {
 };
 
 const EnhancedTable = () => {
+    const [rows, setRows] = useState([]);
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('requestedAt');
     const [selected, setSelected] = useState([]);
     const [page, setPage] = useState(0);
     const [dense, setDense] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}`);
+                const data = response.data;
+                setRows(data);
+                console.log(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        getData();
+    }, []);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -230,7 +160,7 @@ const EnhancedTable = () => {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.serialNumber);
+            const newSelected = rows.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
@@ -242,7 +172,7 @@ const EnhancedTable = () => {
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
+            newSelected = newSelected.concat(selected, serialNumber);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -271,7 +201,7 @@ const EnhancedTable = () => {
 
     const visibleRows = useMemo(
         () => [...rows].sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-        [order, orderBy, page, rowsPerPage]
+        [order, orderBy, page, rowsPerPage, rows]
     );
 
     return (
@@ -289,42 +219,58 @@ const EnhancedTable = () => {
                             rowCount={rows.length}
                         />
                         <TableBody>
-                            {visibleRows.map((row, index) => {
-                                const isItemSelected = selected.includes(row.serialNumber);
-                                const labelId = `enhanced-table-checkbox-${index}`;
-
-                                return (
-                                    <TableRow
-                                        hover
-                                        onClick={(event) => handleClick(event, row.serialNumber)}
-                                        role='checkbox'
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        key={row.serialNumber}
-                                        selected={isItemSelected}
-                                        sx={{ cursor: 'pointer' }}
-                                    >
-                                        <TableCell align='left'>{row.serialNumber}</TableCell>
-                                        <TableCell align='left'>{row.requestedAt}</TableCell>
-                                        <TableCell align='left'>{row.roomNumber}</TableCell>
-                                        <TableCell align='left'>{row.content}</TableCell>
-                                        <TableCell align='center'>{row.progress}</TableCell>
-                                        <TableCell align='center'>{row.requestedBy}</TableCell>
-                                        <TableCell align='center'>{row.priority}</TableCell>
-                                        <TableCell align='center'>{row.endDate}</TableCell>
-                                        <TableCell align='left'>{row.remark}</TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                            {emptyRows > 0 && (
-                                <TableRow
-                                    style={{
-                                        height: (dense ? 33 : 53) * emptyRows,
+                            {visibleRows.map((row, index) => (
+                                <Box
+                                    key={row.id}
+                                    sx={{
+                                        display: { xs: 'block', sm: 'table-row' },
+                                        borderBottom: { xs: '1px solid #ccc', sm: 'none' },
+                                        mb: { xs: 2, sm: 0 },
+                                        p: { xs: 1, sm: 0 },
                                     }}
                                 >
-                                    <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
+                                    {/* Desktop dạng bảng */}
+                                    <TableRow
+                                        sx={{ display: { xs: 'none', sm: 'table-row' } }}
+                                        hover
+                                        onClick={(event) => handleClick(event, row.id)}
+                                        key={row.id}
+                                    >
+                                        <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{row.dateCreated}</TableCell>
+                                        <TableCell>{row.roomNumber}</TableCell>
+                                        <TableCell>{row.description}</TableCell>
+                                        <TableCell>{row.progress}</TableCell>
+                                        <TableCell>{row.reportedBy}</TableCell>
+                                        <TableCell>{row.priority}</TableCell>
+                                        <TableCell>{row.dateDone}</TableCell>
+                                        <TableCell>{row.remark}</TableCell>
+                                    </TableRow>
+
+                                    {/* Mobile dạng card */}
+                                    <Box
+                                        sx={{
+                                            display: { xs: 'flex', sm: 'none' },
+                                            flexDirection: 'column',
+                                            border: '1px solid #ddd',
+                                            borderRadius: 2,
+                                            p: 1,
+                                            mb: 1,
+                                            backgroundColor: '#fafafa',
+                                        }}
+                                    >
+                                        <Typography variant='subtitle2'>STT: {index + 1}</Typography>
+                                        <Typography variant='body2'>Ngày: {row.dateCreated}</Typography>
+                                        <Typography variant='body2'>Mã căn hộ: {row.roomNumber}</Typography>
+                                        <Typography variant='body2'>Nội dung: {row.description}</Typography>
+                                        <Typography variant='body2'>Tiến độ: {row.progress}</Typography>
+                                        <Typography variant='body2'>Người yêu cầu: {row.reportedBy}</Typography>
+                                        <Typography variant='body2'>Ưu tiên: {row.priority}</Typography>
+                                        <Typography variant='body2'>Ngày hoàn thành: {row.dateDone}</Typography>
+                                        <Typography variant='body2'>Ghi chú: {row.remark}</Typography>
+                                    </Box>
+                                </Box>
+                            ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
